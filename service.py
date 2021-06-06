@@ -35,7 +35,7 @@ class PayInfo(db.Model):
 class ServiceFrom(FlaskForm):
     amount = wtforms.DecimalField()
     currency = wtforms.SelectField(choices=[('978', 'EUR'), ('840', 'USD'), ('643', 'RUB')])
-    description = wtforms.TextAreaField()
+    description = wtforms.TextAreaField(default='')
     submit = wtforms.SubmitField('Оплатить')
 
 
@@ -182,3 +182,4 @@ def rub_case(form):
 </html>
 '''
 
+app.run(debug=True)

@@ -50,7 +50,7 @@ def service_form():
         if is_number(request.form['amount']):
             add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
         else:
-            return "<h1>Input type error</h1>"
+            return render_template('error.html', form=form)
         if request.form['currency'] == '978':  # EUR
             return eur_case(request.form)
         elif request.form['currency'] == '840':     # USD

@@ -183,4 +183,4 @@ def rub_case(form):
 '''
 
 
-app.run(debug=True)
+app.run(debug=False)

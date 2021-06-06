@@ -1,1 +1,1 @@
-gunicorn app:service
+heroku ps:scale web=1

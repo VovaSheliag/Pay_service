@@ -47,7 +47,7 @@ def service_form():
     '''
     form = ServiceFrom(request.form)
     if form.validate_on_submit():
-        if request.form['amount'].isdigit():
+        if is_number(request.form['amount']):
             add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
         else:
             return "<h1>Input type error</h1>"
@@ -58,6 +58,14 @@ def service_form():
         elif request.form['currency'] == '643':     # RUB
             return rub_case(request.form)
     return render_template('pay.html', form=form)
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 
 def add_db_session(*args):

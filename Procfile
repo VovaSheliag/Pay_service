@@ -1,1 +1,1 @@
-web: python service.py runserver $PORT
+web: python service.py runserver 0.0.0.0:5000

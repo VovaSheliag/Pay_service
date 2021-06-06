@@ -1,1 +1,1 @@
-web: gunicorn service:app
+web: gunicorn 0.0.0.0:5040 service:app

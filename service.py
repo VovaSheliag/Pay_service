@@ -47,7 +47,10 @@ def service_form():
     '''
     form = ServiceFrom(request.form)
     if form.validate_on_submit():
-        add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
+        if request.form['amount'].isdigit():
+            add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
+        else:
+            return "<h1>Input type error</h1>"
         if request.form['currency'] == '978':  # EUR
             return eur_case(request.form)
         elif request.form['currency'] == '840':     # USD
@@ -182,4 +185,3 @@ def rub_case(form):
 </html>
 '''
 
-app.run(debug=True)

@@ -1,1 +1,1 @@
-web: gunicorn -w 4 -b 127.0.0.1:8004 service:app
+web: gunicorn -w 4 -b 0.0.0.0:5000 service:app

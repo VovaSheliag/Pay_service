@@ -49,8 +49,6 @@ def service_form():
     if form.validate_on_submit():
         if is_number(request.form['amount']):
             add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
-        else:
-            return redirect(url_for(error))
         if request.form['currency'] == '978':  # EUR
             return eur_case(request.form)
         elif request.form['currency'] == '840':     # USD
@@ -58,11 +56,6 @@ def service_form():
         elif request.form['currency'] == '643':     # RUB
             return rub_case(request.form)
     return render_template('pay.html', form=form)
-
-
-@app.route('/error', methods=['POST', 'GET'])
-def error():
-    return "<h2>Input error</h2>"
 
 
 def is_number(s):

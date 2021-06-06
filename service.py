@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import FlaskForm
 import wtforms
+from wtforms import validators
 from flask_sqlalchemy import SQLAlchemy
 from hashlib import sha256
 from datetime import datetime
@@ -33,9 +34,9 @@ class PayInfo(db.Model):
 
 
 class ServiceFrom(FlaskForm):
-    amount = wtforms.DecimalField()
+    amount = wtforms.DecimalField(validators=[validators.InputRequired()])
     currency = wtforms.SelectField(choices=[('978', 'EUR'), ('840', 'USD'), ('643', 'RUB')])
-    description = wtforms.TextAreaField(default=' ')
+    description = wtforms.TextAreaField(validators=[validators.Optional(strip_whitespace=True)])
     submit = wtforms.SubmitField('Оплатить')
 
 
@@ -47,8 +48,7 @@ def service_form():
     '''
     form = ServiceFrom(request.form)
     if form.validate_on_submit():
-        if is_number(request.form['amount']):
-            add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
+        add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
         if request.form['currency'] == '978':  # EUR
             return eur_case(request.form)
         elif request.form['currency'] == '840':     # USD
@@ -56,14 +56,6 @@ def service_form():
         elif request.form['currency'] == '643':     # RUB
             return rub_case(request.form)
     return render_template('pay.html', form=form)
-
-
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
 
 
 def add_db_session(*args):
@@ -190,4 +182,3 @@ def rub_case(form):
 </body>
 </html>
 '''
-

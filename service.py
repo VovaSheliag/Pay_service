@@ -186,7 +186,7 @@ def rub_case(form):
 
 def send_request(request_json, url, headers):
     response = requests.post(url, data=json.dumps(request_json),
-                             headers=headers)  # method='POST' to URL='https://core.piastrix.com/invoice/create'
+                             headers=headers)  # method='POST' to URL=url
     while not json.loads(response.text)['result']:
         response = requests.post(url, data=json.dumps(request_json), headers=headers)
     return response

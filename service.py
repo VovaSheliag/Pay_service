@@ -134,7 +134,7 @@ def usd_case(form):
         "sign": get_hex_sign(keys)
     }
     headers = {'Content-type': 'application/json'}
-    response = requests.post(url, data=json.dumps(request_json), headers=headers)   # method='POST' to URL="https://core.piastrix.com/bill/create"
+    response = send_request(request_json, url, headers)
     return redirect(json.loads(response.text)['data']['url'])
 
 
@@ -155,7 +155,7 @@ def rub_case(form):
         "sign": get_hex_sign(keys)
     }
     headers = {'Content-type': 'application/json'}
-    response = requests.post(url, data=json.dumps(request_json), headers=headers)   # method='POST' to URL='https://core.piastrix.com/invoice/create'
+    response = send_request(request_json, url, headers)
     return f'''<html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -182,3 +182,12 @@ def rub_case(form):
 </body>
 </html>
 '''
+
+
+def send_request(request_json, url, headers):
+    response = requests.post(url, data=json.dumps(request_json),
+                             headers=headers)  # method='POST' to URL='https://core.piastrix.com/invoice/create'
+    while not json.loads(response.text)['result']:
+        response = requests.post(url, data=json.dumps(request_json), headers=headers)
+    return response
+

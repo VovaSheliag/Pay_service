@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect
 from flask_wtf import FlaskForm
 import wtforms
+from wtforms import validators
 from flask_sqlalchemy import SQLAlchemy
 from hashlib import sha256
 from datetime import datetime
@@ -33,7 +34,7 @@ class PayInfo(db.Model):
 
 
 class ServiceFrom(FlaskForm):
-    amount = wtforms.DecimalField()
+    amount = wtforms.DecimalField(validators=[validators.InputRequired()])
     currency = wtforms.SelectField(choices=[('978', 'EUR'), ('840', 'USD'), ('643', 'RUB')])
     description = wtforms.TextAreaField()
     submit = wtforms.SubmitField('Оплатить')
@@ -132,8 +133,8 @@ def usd_case(form):
         "shop_order_id": shop_order_id,
         "sign": get_hex_sign(keys)
     }
-    headers = {'Content-type': 'application/json'}
-    response = requests.post(url, data=json.dumps(request_json), headers=headers)   # method='POST' to URL="https://core.piastrix.com/bill/create"
+
+    response = check_request(request_json, url)  # method='POST' to URL="https://core.piastrix.com/bill/create"
     return redirect(json.loads(response.text)['data']['url'])
 
 
@@ -153,8 +154,7 @@ def rub_case(form):
         "description": form['description'],
         "sign": get_hex_sign(keys)
     }
-    headers = {'Content-type': 'application/json'}
-    response = requests.post(url, data=json.dumps(request_json), headers=headers)   # method='POST' to URL='https://core.piastrix.com/invoice/create'
+    response = check_request(request_json, url)      #    method='POST' to URL='https://core.piastrix.com/invoice/create'
     return f'''<html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -181,6 +181,14 @@ def rub_case(form):
 </body>
 </html>
 '''
+
+
+def check_request(request_json, url):
+    headers = {'Content-type': 'application/json'}
+    response = requests.post(url, data=json.dumps(request_json), headers=headers)
+    while not json.loads(response.text)['result']:
+        response = requests.post(url, data=json.dumps(request_json), headers=headers)
+    return response
 
 
 app.run(debug=False)

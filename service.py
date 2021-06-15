@@ -43,7 +43,6 @@ class ServiceFrom(FlaskForm):
 @app.route('/', methods=['POST', 'GET'])
 def service_form():
     '''
-
     :return: Page for form input
     '''
     form = ServiceFrom(request.form)
@@ -60,7 +59,6 @@ def service_form():
 
 def add_db_session(*args):
     '''
-
     :param args: [currency, amount, datetime, description]
     :return: None
     '''
@@ -82,38 +80,32 @@ def get_hex_sign(keys):
     return sha256(sign.encode('utf-8')).hexdigest()
 
 
+def parse_response(response):
+    """
+    Parsing json to dict
+    :param response: JSON
+    :return: Dict
+    """
+    parsed_response={
+        "method": json.loads(response.text)['data']['method'],
+        "url": json.loads(response.text)['data']['url'],
+        "ac_account_email": json.loads(response.text)['data']['data']['ac_account_email'],
+        "ac_sci_name": json.loads(response.text)['data']['data']['ac_sci_name'],
+        "ac_amount": json.loads(response.text)['data']['data']['ac_amount'],
+        "ac_currency": json.loads(response.text)['data']['data']['ac_currency'],
+        "ac_order_id": json.loads(response.text)['data']['data']['ac_order_id'],
+        "ac_sub_merchant_url": json.loads(response.text)['data']['data']['ac_sub_merchant_url'],
+        "ac_sign": json.loads(response.text)['data']['data']['ac_sign']
+    }
+    return parsed_response
+
 def eur_case(form):
     '''
     :param form: request.form
     :return: HTML form with method='POST' to URL='https://pay.piastrix.com/ru/pay'
     '''
     keys = [form['amount'], form['currency'], shop_id, str(shop_order_id)]
-    return f'''             </html>
-
-                            <html lang="en">
-                            <head>
-                                <meta charset="UTF-8">
-                                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                <title>Payment</title>
-                            </head>
-                            <body>
-
-                            <form name="Pay" method="post" action="https://pay.piastrix.com/ru/pay" accept-charset="UTF-8"> 
-                            <input type="hidden" name="amount" value="{form['amount']}"/> 
-                            <input type="hidden" name="currency" value="978"/> 
-                            <input type="hidden" name="shop_id" value="5"/> 
-                            <input type="hidden" name="sign" value="{get_hex_sign(keys)}"/> 
-                            <input type="hidden" name="shop_order_id" value="101"/>
-                            <input type="submit" value  =''/>
-                            <input type="hidden" name="description" value="{form['description']}"/> 
-                            </form>
-                            <script type="text/javascript">
-                                document.Pay.submit();
-                            </script>
-
-                            </body>
-                            </html>'''
+    return render_template('eur_case.html', form=form, sign=get_hex_sign(keys))
 
 
 def usd_case(form):
@@ -155,35 +147,17 @@ def rub_case(form):
         "sign": get_hex_sign(keys)
     }
     response = check_request(request_json, url)      #    method='POST' to URL='https://core.piastrix.com/invoice/create'
-    return f'''<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-<form method="{json.loads(response.text)['data']['method']}" action="{json.loads(response.text)['data']['url']}" name="Pay">
-    <input type='hidden' name="lang" value="ru" />
-    <input type="hidden" name="ac_account_email" value="{json.loads(response.text)['data']['data']['ac_account_email']}"/>
-    <input type="hidden" name="ac_sci_name" value="{json.loads(response.text)['data']['data']['ac_sci_name']}"/>
-    <input type="hidden" name="ac_amount" value="{json.loads(response.text)['data']['data']['ac_amount']}"/>
-    <input type="hidden" name="ac_currency" value="{json.loads(response.text)['data']['data']['ac_currency']}"/>
-    <input type="hidden" name="ac_order_id" value="{json.loads(response.text)['data']['data']['ac_order_id']}"/> 
-    <input type="hidden" name="ac_sub_merchant_url" value="{json.loads(response.text)['data']['data']['ac_sub_merchant_url']}"/> 
-    <input type="hidden" name="ac_sign" value="{json.loads(response.text)['data']['data']['ac_sign']}"/> 
-    <input type="hidden" value  =''/>
-    </form>
-    <script type="text/javascript">
-        document.Pay.submit();
-    </script>
-    
-</body>
-</html>
-'''
+    print(parse_response(response)['ac_order_id'])
+    return render_template("rub_case.html", data=parse_response(response))
 
 
 def check_request(request_json, url):
+    """
+    Checking request for result = True
+    :param request_json: JSON
+    :param url: URL
+    :return: Dict
+    """
     headers = {'Content-type': 'application/json'}
     response = requests.post(url, data=json.dumps(request_json), headers=headers)
     while not json.loads(response.text)['result']:

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask_wtf import FlaskForm
 import wtforms
 from wtforms import validators
@@ -36,7 +36,7 @@ class PayInfo(db.Model):
 class ServiceFrom(FlaskForm):
     amount = wtforms.DecimalField(validators=[validators.InputRequired()])
     currency = wtforms.SelectField(choices=[('978', 'EUR'), ('840', 'USD'), ('643', 'RUB')])
-    description = wtforms.TextAreaField()
+    description = wtforms.TextAreaField(validators=[validators.Optional(strip_whitespace=True)])
     submit = wtforms.SubmitField('Оплатить')
 
 
@@ -125,8 +125,13 @@ def usd_case(form):
         "shop_order_id": shop_order_id,
         "sign": get_hex_sign(keys)
     }
+<<<<<<< HEAD
 
     response = check_request(request_json, url)  # method='POST' to URL="https://core.piastrix.com/bill/create"
+=======
+    headers = {'Content-type': 'application/json'}
+    response = send_request(request_json, url, headers)
+>>>>>>> 72cbd69b74853149d6c8d4221157fc66128ae76b
     return redirect(json.loads(response.text)['data']['url'])
 
 
@@ -159,10 +164,46 @@ def check_request(request_json, url):
     :return: Dict
     """
     headers = {'Content-type': 'application/json'}
+<<<<<<< HEAD
     response = requests.post(url, data=json.dumps(request_json), headers=headers)
     while not json.loads(response.text)['result']:
         response = requests.post(url, data=json.dumps(request_json), headers=headers)
     return response
+=======
+    response = send_request(request_json, url, headers)
+    return f'''<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<form method="{json.loads(response.text)['data']['method']}" action="{json.loads(response.text)['data']['url']}" name="Pay">
+    <input type='hidden' name="lang" value="ru" />
+    <input type="hidden" name="ac_account_email" value="{json.loads(response.text)['data']['data']['ac_account_email']}"/>
+    <input type="hidden" name="ac_sci_name" value="{json.loads(response.text)['data']['data']['ac_sci_name']}"/>
+    <input type="hidden" name="ac_amount" value="{json.loads(response.text)['data']['data']['ac_amount']}"/>
+    <input type="hidden" name="ac_currency" value="{json.loads(response.text)['data']['data']['ac_currency']}"/>
+    <input type="hidden" name="ac_order_id" value="{json.loads(response.text)['data']['data']['ac_order_id']}"/> 
+    <input type="hidden" name="ac_sub_merchant_url" value="{json.loads(response.text)['data']['data']['ac_sub_merchant_url']}"/> 
+    <input type="hidden" name="ac_sign" value="{json.loads(response.text)['data']['data']['ac_sign']}"/> 
+    <input type="hidden" value  =''/>
+    </form>
+    <script type="text/javascript">
+        document.Pay.submit();
+    </script>
+    
+</body>
+</html>
+'''
+>>>>>>> 72cbd69b74853149d6c8d4221157fc66128ae76b
 
 
-app.run(debug=False)
+def send_request(request_json, url, headers):
+    response = requests.post(url, data=json.dumps(request_json),
+                             headers=headers)  # method='POST' to URL=url
+    while not json.loads(response.text)['result']:
+        response = requests.post(url, data=json.dumps(request_json), headers=headers)
+    return response
+

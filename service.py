@@ -166,4 +166,3 @@ def check_request(request_json, url):
     return response
 
 
-app.run(debug=False)

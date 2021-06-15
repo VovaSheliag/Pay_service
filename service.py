@@ -99,6 +99,7 @@ def parse_response(response):
     }
     return parsed_response
 
+
 def eur_case(form):
     '''
     :param form: request.form

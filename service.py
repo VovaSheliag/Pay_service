@@ -138,7 +138,7 @@ def rub_case(form):
     '''
     url = 'https://core.piastrix.com/invoice/create'
     keys = [form['amount'], form['currency'], payway, shop_id, str(shop_order_id)]
-    request_json = {                    #data
+    request_json = {                    # data
         "currency": form['currency'],
         "payway": payway,
         "amount": form['amount'],
@@ -147,8 +147,7 @@ def rub_case(form):
         "description": form['description'],
         "sign": get_hex_sign(keys)
     }
-    response = check_request(request_json, url)      #    method='POST' to URL='https://core.piastrix.com/invoice/create'
-    print(parse_response(response)['ac_order_id'])
+    response = check_request(request_json, url)    # method='POST' to URL='https://core.piastrix.com/invoice/create'
     return render_template("rub_case.html", data=parse_response(response))
 
 

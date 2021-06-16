@@ -49,9 +49,9 @@ def service_form():
     if request.method == 'POST':
         if form.validate_on_submit():
             add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
-            return_case_redirect(request_form=request.form)
             if return_case_redirect(request_form=request.form) is None:
                 return return_case_redirect(request.form)
+            return return_case_redirect(request_form=request.form)
     return render_template('pay.html', form=form)
 
 

@@ -46,14 +46,15 @@ def service_form():
     :return: Page for form input
     '''
     form = ServiceFrom(request.form)
-    if form.validate_on_submit():
-        add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
-        if request.form['currency'] == '978':  # EUR
-            return eur_case(request.form)
-        elif request.form['currency'] == '840':     # USD
-            return usd_case(request.form)
-        elif request.form['currency'] == '643':     # RUB
-            return rub_case(request.form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
+            if request.form['currency'] == '978':  # EUR
+                return eur_case(request.form)
+            elif request.form['currency'] == '840':     # USD
+                return usd_case(request.form)
+            elif request.form['currency'] == '643':     # RUB
+                return rub_case(request.form)
     return render_template('pay.html', form=form)
 
 

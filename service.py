@@ -49,14 +49,21 @@ def service_form():
     if request.method == 'POST':
         if form.validate_on_submit():
             add_db_session(request.form['currency'], request.form['amount'], datetime.now(), request.form['description'])  #Add new row to database
-            if request.form['currency'] == '978':  # EUR
-                return eur_case(request.form)
-            elif request.form['currency'] == '840':     # USD
-                return usd_case(request.form)
-            elif request.form['currency'] == '643':     # RUB
-                return rub_case(request.form)
+            return_case_redirect(request_form=request.form)
+            if return_case_redirect(request_form=request.form) is None:
+                return return_case_redirect(request.form)
     return render_template('pay.html', form=form)
 
+
+def return_case_redirect(request_form):
+    if request_form['currency'] == '978':  # EUR
+        return eur_case(request_form)
+    elif request_form['currency'] == '840':  # USD
+        return usd_case(request_form)
+    elif request_form['currency'] == '643':  # RUB
+        return rub_case(request_form)
+    else:
+        return None
 
 def add_db_session(*args):
     '''
